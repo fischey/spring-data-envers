@@ -46,7 +46,7 @@
 		<springdata.jpa>1.11.16.RELEASE</springdata.jpa>
 		<hibernate.envers>4.3.11</hibernate.envers>
 		<source.level>1.8</source.level>
-		<bundlor.enabled>false</bundlor.enabled>
+		<bundlor.failOnWarnings>false</bundlor.failOnWarnings>
 		<enforcer.skip>true</enforcer.skip>
 	</properties>
 

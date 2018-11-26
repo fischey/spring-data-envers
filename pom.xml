@@ -46,6 +46,8 @@
 		<springdata.jpa>1.11.16.RELEASE</springdata.jpa>
 		<hibernate.envers>4.3.11</hibernate.envers>
 		<source.level>1.8</source.level>
+		<bundlor.enabled>false</bundlor.enabled>
+		<enforcer.skip>true</enforcer.skip>
 	</properties>
 
 	<dependencies>
@@ -61,6 +63,21 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-envers</artifactId>
 			<version>${hibernate.envers}.Final</version>
+		</dependency>
+
+		<!-- QueryDsl -->
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<version>${querydsl}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-jpa</artifactId>
+			<version>${querydsl}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Test -->

@@ -16,53 +16,56 @@
 package org.springframework.data.envers.repository.support;
 
 import org.hibernate.envers.DefaultRevisionEntity;
-import org.joda.time.DateTime;
 import org.springframework.data.history.RevisionMetadata;
 import org.springframework.util.Assert;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 /**
  * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}.
- * 
+ *
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
  */
 public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 
-	private final DefaultRevisionEntity entity;
+  private final DefaultRevisionEntity entity;
 
-	/**
-	 * Creates a new {@link DefaultRevisionMetadata}.
-	 * 
-	 * @param entity must not be {@literal null}.
-	 */
-	public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
+  /**
+   * Creates a new {@link DefaultRevisionMetadata}.
+   *
+   * @param entity must not be {@literal null}.
+   */
+  public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
 
-		Assert.notNull(entity);
-		this.entity = entity;
-	}
+    Assert.notNull(entity);
+    this.entity = entity;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
-	 */
-	public Integer getRevisionNumber() {
-		return entity.getId();
-	}
+  /*
+   * (non-Javadoc)
+   * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
+   */
+  public Integer getRevisionNumber() {
+    return entity.getId();
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
-	 */
-	public DateTime getRevisionDate() {
-		return new DateTime(entity.getTimestamp());
-	}
+  /*
+   * (non-Javadoc)
+   * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
+   */
+  public LocalDateTime getRevisionDate() {
+    return LocalDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneId.of("CET"));
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.history.RevisionMetadata#getDelegate()
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T getDelegate() {
-		return (T) entity;
-	}
+  /*
+   * (non-Javadoc)
+   * @see org.springframework.data.history.RevisionMetadata#getDelegate()
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getDelegate() {
+    return (T) entity;
+  }
 }

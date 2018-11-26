@@ -16,6 +16,7 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -33,5 +34,12 @@ import org.springframework.data.repository.history.RevisionRepository;
 @NoRepositoryBean
 public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>>
 		extends RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
-
+	/**
+	 * Returns the revision of the entity since it was last changed or null it the last change was before.
+	 *
+	 * @param id    must not be {@literal null}.
+	 * @param since must not be {@literal null}.
+	 * @return
+	 */
+	RevisionWithRevisionType findLastChangeRevisionSince(ID id, Date since);
 }

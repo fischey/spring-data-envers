@@ -16,21 +16,15 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
 
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.hibernate.envers.RevisionNumber;
-import org.hibernate.envers.RevisionTimestamp;
+import org.hibernate.envers.*;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.envers.query.AuditQueryCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -77,6 +71,34 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		this.entityInformation = entityInformation;
 		this.revisionEntityInformation = revisionEntityInformation;
 		this.entityManager = entityManager;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.history.EnversRevisionRepository#findLastChangeRevisionSince(java.io.Serializable,java.util.Date)
+	 */
+	@Override
+	public org.springframework.data.envers.repository.support.RevisionWithRevisionType findLastChangeRevisionSince(final ID id, final Date since) {
+		final Class<T> type = entityInformation.getJavaType();
+		final AuditReader reader = AuditReaderFactory.get(entityManager);
+		final AuditQueryCreator query = reader.createQuery();
+		final AuditQuery auditQueryForRevisionNumber = query.forRevisionsOfEntity(type, false, true);
+
+		final Number lastRevisionNumber = (Number) auditQueryForRevisionNumber.add(AuditEntity.id().eq(id))
+			.add(AuditEntity.revisionProperty("timestamp").ge(since.getTime()))
+			.addProjection(AuditEntity.revisionNumber().max()).getSingleResult();
+
+		if (lastRevisionNumber == null) {
+			return null;
+		}
+
+		final AuditQuery auditQueryForEntity = query.forRevisionsOfEntity(type, false, true);
+		final Object[] lastRevision = (Object[]) auditQueryForEntity.add(AuditEntity.id().eq(id))
+			.add(AuditEntity.revisionNumber().eq(lastRevisionNumber)).getSingleResult();
+
+		return new RevisionWithRevisionType(
+			new DefaultRevisionMetadataWithRevisionType((org.springframework.data.envers.repository.support.DefaultRevisionMetadata) getRevisionMetadata(lastRevision[1]),
+				(RevisionType) lastRevision[2]), lastRevision[0]);
 	}
 
 	/*
